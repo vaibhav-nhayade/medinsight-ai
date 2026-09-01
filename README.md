@@ -20,13 +20,13 @@ AI-generated information should be verified with a qualified healthcare professi
 
 ---
 
-## 🎯 Project Goal
+## Project Goal
 
 To develop a reliable and privacy-conscious AI system that transforms complex medical reports into understandable, structured, and evidence-grounded health insights while helping users have better-informed conversations with healthcare professionals.
 
 ---
 
-## ✨ Planned Features
+## Planned Features
 
 ### Medical Document Understanding
 - PDF and image report upload
@@ -69,7 +69,7 @@ To develop a reliable and privacy-conscious AI system that transforms complex me
 
 ---
 
-## 🏗️ Planned Architecture
+## Planned Architecture
 
 ```text
 Medical Report
@@ -109,7 +109,7 @@ Range Analysis    Pattern Analysis
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```text
 medinsight-ai/
@@ -138,7 +138,7 @@ medinsight-ai/
 
 ---
 
-## 🛠️ Technology Stack
+## Technology Stack
 
 The final technology stack will be selected during development.
 
@@ -181,7 +181,7 @@ Technology choices will be driven by reliability, cost, privacy, maintainability
 
 ---
 
-## 🔐 Privacy
+## Privacy
 
 Medical documents may contain highly sensitive personal information.
 
