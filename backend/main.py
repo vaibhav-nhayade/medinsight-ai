@@ -4,6 +4,7 @@ MedInsight AI FastAPI application entry point.
 
 from fastapi import FastAPI
 
+from backend.routes.analysis import router as analysis_router
 from backend.routes.health import router as health_router
 from backend.routes.reports import router as reports_router
 
@@ -20,6 +21,7 @@ app = FastAPI(
 
 app.include_router(health_router)
 app.include_router(reports_router)
+app.include_router(analysis_router)
 
 
 @app.get("/")
