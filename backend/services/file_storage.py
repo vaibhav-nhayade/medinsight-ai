@@ -1,8 +1,5 @@
 """
 Secure local file storage service.
-
-Files are stored outside the source-code directories and are
-excluded from Git through .gitignore.
 """
 
 from pathlib import Path
@@ -29,11 +26,7 @@ class FileStorageService:
         filename: str,
         file_size: int,
     ) -> str:
-        """
-        Validate filename and size.
-
-        Returns the normalized extension.
-        """
+        """Validate filename and size."""
 
         extension = Path(filename).suffix.lower()
 
@@ -43,7 +36,9 @@ class FileStorageService:
             )
 
         if file_size <= 0:
-            raise ValueError("Uploaded file is empty.")
+            raise ValueError(
+                "Uploaded file is empty."
+            )
 
         if file_size > MAX_UPLOAD_SIZE:
             raise ValueError(
@@ -69,7 +64,9 @@ class FileStorageService:
     ) -> Path:
         """Persist validated file content."""
 
-        file_path = self.generate_file_path(extension)
+        file_path = self.generate_file_path(
+            extension
+        )
 
         file_path.write_bytes(content)
 
