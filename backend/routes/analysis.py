@@ -2,11 +2,10 @@
 Medical report analysis API endpoints.
 """
 
-from pathlib import Path
-
 from fastapi import APIRouter, HTTPException
 
 from backend.schemas.report import AnalysisResponse
+from backend.services.document_service import document_service
 from backend.services.report_service import ReportService
 
 
@@ -25,56 +24,48 @@ report_service = ReportService()
 def analyze_report(
     document_id: str,
 ) -> AnalysisResponse:
-    """
-    Analyze a previously uploaded medical report.
+    """Analyze the exact uploaded document identified by document_id."""
 
-    The document ID is currently mapped to the local upload directory.
-    Persistent metadata storage will be introduced later.
-    """
+    document = document_service.get(document_id)
 
-    from backend.config import UPLOAD_DIR
-
-    matching_files = list(
-        UPLOAD_DIR.glob("*")
-    )
-
-    if not matching_files:
+    if document is None:
         raise HTTPException(
             status_code=404,
-            detail="No uploaded documents found.",
-        )
-
-    # Temporary MVP mapping.
-    #
-    # A database-backed document repository will replace this
-    # mechanism in a later milestone.
-    file_path: Path | None = None
-
-    for candidate in matching_files:
-        if candidate.is_file():
-            file_path = candidate
-            break
-
-    if file_path is None:
-        raise HTTPException(
-            status_code=404,
-            detail="Uploaded document could not be found.",
+            detail="Document not found.",
         )
 
     try:
-        return report_service.analyze_report(
-            file_path=file_path,
-            document_id=document_id,
+        document_service.mark_processing(document_id)
+
+        analysis = report_service.analyze_report(
+            file_path=document.storage_path,
+            document_id=document.document_id,
         )
 
+        document_service.mark_processed(document_id)
+
+        return analysis
+
     except ValueError as exc:
+        document_service.mark_failed(document_id)
+
         raise HTTPException(
             status_code=400,
             detail=str(exc),
         ) from exc
 
     except FileNotFoundError as exc:
+        document_service.mark_failed(document_id)
+
         raise HTTPException(
             status_code=404,
-            detail=str(exc),
+            detail="Stored document could not be found.",
         ) from exc
+
+    except Exception:
+        document_service.mark_failed(document_id)
+
+        raise HTTPException(
+            status_code=500,
+            detail="Document analysis failed.",
+        )

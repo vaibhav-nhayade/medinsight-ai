@@ -1,8 +1,8 @@
 """
 Document repository.
 
-This implementation uses in-memory storage for the MVP.
-A database-backed implementation can replace it later.
+The MVP uses in-memory metadata storage.
+A database-backed repository can replace this implementation later.
 """
 
 from backend.models.document import DocumentRecord
@@ -59,3 +59,6 @@ class DocumentRepository:
         """Return all stored documents."""
 
         return list(self._documents.values())
+
+
+document_repository = DocumentRepository()

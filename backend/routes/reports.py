@@ -7,10 +7,8 @@ from uuid import uuid4
 from fastapi import APIRouter, File, HTTPException, UploadFile
 
 from backend.models.document import DocumentRecord
-from backend.repositories.document_repository import (
-    DocumentRepository,
-)
 from backend.schemas.report import UploadResponse
+from backend.services.document_service import document_service
 from backend.services.file_storage import FileStorageService
 
 
@@ -20,7 +18,6 @@ router = APIRouter(
 )
 
 storage = FileStorageService()
-document_repository = DocumentRepository()
 
 
 @router.post(
@@ -60,7 +57,7 @@ async def upload_report(
             storage_path=stored_path,
         )
 
-        document_repository.create(document)
+        document_service.register(document)
 
     except ValueError as exc:
         raise HTTPException(
