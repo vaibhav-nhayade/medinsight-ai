@@ -5,34 +5,21 @@ from backend.repositories.document_repository import DocumentRepository
 from backend.services.document_service import DocumentService
 
 
-def create_service():
-    """
-    Create an isolated document service for testing.
-    """
-
-    service = DocumentService()
-
-    # Replace the shared repository with an isolated test repository.
-    import backend.services.document_service as module
-
-    module.document_repository = DocumentRepository()
-
-    return service
-
-
 def create_document() -> DocumentRecord:
     return DocumentRecord(
         document_id="test-document-001",
         original_filename="medical_report.pdf",
         file_type="pdf",
         size_bytes=2048,
-        storage_path=Path(
-            "data/uploads/test-document.pdf"
-        ),
+        storage_path=Path("data/uploads/test-document.pdf"),
     )
 
 
-def test_register_document():
+def create_service() -> DocumentService:
+    return DocumentService()
+
+
+def test_register_document(isolated_database):
     service = create_service()
 
     document = create_document()
@@ -43,55 +30,40 @@ def test_register_document():
     assert result.status == "uploaded"
 
 
-def test_document_processing_status():
+def test_document_processing_status(isolated_database):
     service = create_service()
 
-    document = create_document()
-    service.register(document)
+    service.register(create_document())
 
-    service.mark_processing(
-        "test-document-001"
-    )
+    service.mark_processing("test-document-001")
 
-    result = service.get(
-        "test-document-001"
-    )
+    result = service.get("test-document-001")
 
     assert result is not None
     assert result.status == "processing"
 
 
-def test_document_processed_status():
+def test_document_processed_status(isolated_database):
     service = create_service()
 
-    document = create_document()
-    service.register(document)
+    service.register(create_document())
 
-    service.mark_processed(
-        "test-document-001"
-    )
+    service.mark_processed("test-document-001")
 
-    result = service.get(
-        "test-document-001"
-    )
+    result = service.get("test-document-001")
 
     assert result is not None
     assert result.status == "processed"
 
 
-def test_document_failed_status():
+def test_document_failed_status(isolated_database):
     service = create_service()
 
-    document = create_document()
-    service.register(document)
+    service.register(create_document())
 
-    service.mark_failed(
-        "test-document-001"
-    )
+    service.mark_failed("test-document-001")
 
-    result = service.get(
-        "test-document-001"
-    )
+    result = service.get("test-document-001")
 
     assert result is not None
     assert result.status == "failed"

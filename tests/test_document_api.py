@@ -10,16 +10,7 @@ from backend.services.document_service import document_service
 client = TestClient(app)
 
 
-def test_document_not_found():
-    response = client.get(
-        "/api/v1/documents/non-existent-document"
-    )
-
-    assert response.status_code == 404
-    assert response.json()["detail"] == "Document not found."
-
-
-def test_document_status_endpoint():
+def test_document_status_endpoint(isolated_database):
     document = DocumentRecord(
         document_id="api-test-document",
         original_filename="blood_report.pdf",

@@ -3,14 +3,10 @@ from pathlib import Path
 import pytest
 
 from backend.models.document import DocumentRecord
-from backend.repositories.document_repository import (
-    DocumentRepository,
-)
+from backend.repositories.document_repository import DocumentRepository
 
 
-def create_document(
-    document_id: str = "doc-001",
-) -> DocumentRecord:
+def create_document(document_id: str = "doc-001") -> DocumentRecord:
     return DocumentRecord(
         document_id=document_id,
         original_filename="report.pdf",
@@ -20,11 +16,10 @@ def create_document(
     )
 
 
-def test_create_and_get_document():
+def test_create_and_get_document(isolated_database):
     repository = DocumentRepository()
 
     document = create_document()
-
     repository.create(document)
 
     result = repository.get("doc-001")
@@ -34,7 +29,7 @@ def test_create_and_get_document():
     assert result.original_filename == "report.pdf"
 
 
-def test_missing_document_returns_none():
+def test_missing_document_returns_none(isolated_database):
     repository = DocumentRepository()
 
     result = repository.get("does-not-exist")
@@ -42,25 +37,19 @@ def test_missing_document_returns_none():
     assert result is None
 
 
-def test_duplicate_document_is_rejected():
+def test_duplicate_document_is_rejected(isolated_database):
     repository = DocumentRepository()
 
-    repository.create(
-        create_document()
-    )
+    repository.create(create_document())
 
     with pytest.raises(ValueError):
-        repository.create(
-            create_document()
-        )
+        repository.create(create_document())
 
 
-def test_document_status_can_be_updated():
+def test_document_status_can_be_updated(isolated_database):
     repository = DocumentRepository()
 
-    repository.create(
-        create_document()
-    )
+    repository.create(create_document())
 
     repository.update_status(
         document_id="doc-001",
