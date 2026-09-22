@@ -165,7 +165,7 @@ Technology choices will be driven by reliability, cost, privacy, maintainability
 
 ### Roadmap
 
-- [x] Define project goal and objectives
+- [ ] Define project goal and objectives
 - [ ] Establish project foundation
 - [ ] Design frontend experience
 - [ ] Build document ingestion pipeline
