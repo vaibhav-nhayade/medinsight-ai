@@ -4,10 +4,7 @@ Application service for medical report processing.
 
 from pathlib import Path
 
-from ai.analysis.classification import classify_result
-from ai.analysis.finding_service import FindingService
-from ai.analysis.summary import build_analysis_summary
-from ai.extraction.report_parser import MedicalReportParser
+from ai.analysis.orchestrator import AnalysisOrchestrator
 
 from backend.schemas.report import (
     AnalysisResponse,
@@ -18,57 +15,37 @@ from backend.schemas.report import (
 
 
 class ReportService:
-    """Coordinate medical report parsing and analysis."""
+    """Coordinate medical report analysis for the backend API."""
 
     def __init__(self) -> None:
-        self.parser = MedicalReportParser()
-        self.finding_service = FindingService()
+        self.analysis_orchestrator = AnalysisOrchestrator()
 
     def analyze_report(
         self,
         file_path: str | Path,
         document_id: str,
     ) -> AnalysisResponse:
+        """Analyze a stored medical report and build the API response."""
 
-        document, results = self.parser.parse(
+        analysis = self.analysis_orchestrator.analyze(
             file_path=file_path,
             document_id=document_id,
         )
 
-        findings = self.finding_service.generate_findings(
-            results
-        )
-
-        summary = build_analysis_summary(
-            results=results,
-            findings=findings,
-        )
-
-        result_responses = []
-
-        for result in results:
-            status = classify_result(
+        result_responses = [
+            ReportResultResponse(
+                test_name=result.test_name,
                 value=result.value,
-                reference_range=result.reference_range,
+                unit=result.unit,
+                reference_minimum=result.reference_minimum,
+                reference_maximum=result.reference_maximum,
+                status=result.status.value,
+                confidence=result.confidence,
+                needs_verification=result.needs_verification,
+                source_page=result.source_page,
             )
-
-            result_responses.append(
-                ReportResultResponse(
-                    test_name=result.test_name,
-                    value=result.value,
-                    unit=result.unit,
-                    reference_minimum=(
-                        result.reference_range.minimum
-                    ),
-                    reference_maximum=(
-                        result.reference_range.maximum
-                    ),
-                    status=status.value,
-                    confidence=result.confidence,
-                    needs_verification=result.needs_verification,
-                    source_page=result.source.page,
-                )
-            )
+            for result in analysis.results
+        ]
 
         finding_responses = [
             FindingResponse(
@@ -82,12 +59,14 @@ class ReportService:
                 source_page=finding.source_page,
                 needs_verification=finding.needs_verification,
             )
-            for finding in findings
+            for finding in analysis.findings
         ]
 
+        summary = analysis.summary
+
         return AnalysisResponse(
-            document_id=document.document_id,
-            filename=document.filename,
+            document_id=analysis.document_id,
+            filename=analysis.filename,
             results=result_responses,
             findings=finding_responses,
             summary=AnalysisSummaryResponse(
@@ -97,8 +76,6 @@ class ReportService:
                 high_results=summary.high_results,
                 unknown_results=summary.unknown_results,
                 findings_count=summary.findings_count,
-                verification_required=(
-                    summary.verification_required
-                ),
+                verification_required=summary.verification_required,
             ),
         )
