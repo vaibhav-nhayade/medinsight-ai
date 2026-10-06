@@ -4,9 +4,8 @@ High-level summary of deterministic report analysis.
 
 from dataclasses import dataclass
 
-from .classification import ResultStatus
 from .finding import MedicalFinding
-from ai.extraction.schema import ExtractedTestResult
+from .result import AnalyzedTestResult
 
 
 @dataclass
@@ -23,10 +22,15 @@ class AnalysisSummary:
 
 
 def build_analysis_summary(
-    results: list[ExtractedTestResult],
+    results: list[AnalyzedTestResult],
     findings: list[MedicalFinding],
 ) -> AnalysisSummary:
+    """
+    Build summary statistics from already-analyzed results.
 
+    Classification is intentionally not repeated here.
+    ResultAnalysisService is the single source of truth for status.
+    """
     normal = 0
     low = 0
     high = 0
@@ -34,43 +38,14 @@ def build_analysis_summary(
     verification_required = 0
 
     for result in results:
-        status = (
-            ResultStatus.NORMAL
-            if (
-                result.reference_range.minimum is not None
-                or result.reference_range.maximum is not None
-            )
-            and result.value is not None
-            and (
-                (
-                    result.reference_range.minimum is None
-                    or result.value >= result.reference_range.minimum
-                )
-                and (
-                    result.reference_range.maximum is None
-                    or result.value <= result.reference_range.maximum
-                )
-            )
-            else None
-        )
-
-        if status == ResultStatus.NORMAL:
+        if result.status.value == "normal":
             normal += 1
-        else:
-            # The definitive classification is performed by the finding
-            # service. Unknown is used here when a result cannot be
-            # classified from the available report information.
-            minimum = result.reference_range.minimum
-            maximum = result.reference_range.maximum
-
-            if result.value is None or (
-                minimum is None and maximum is None
-            ):
-                unknown += 1
-            elif minimum is not None and result.value < minimum:
-                low += 1
-            elif maximum is not None and result.value > maximum:
-                high += 1
+        elif result.status.value == "low":
+            low += 1
+        elif result.status.value == "high":
+            high += 1
+        elif result.status.value == "unknown":
+            unknown += 1
 
         if result.needs_verification:
             verification_required += 1
