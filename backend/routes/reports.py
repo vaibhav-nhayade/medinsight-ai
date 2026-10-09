@@ -1,3 +1,4 @@
+
 """
 Medical report upload endpoints.
 """
@@ -6,6 +7,7 @@ from uuid import uuid4
 
 from fastapi import APIRouter, File, HTTPException, UploadFile
 
+from backend.config import MAX_UPLOAD_SIZE
 from backend.models.document import DocumentRecord
 from backend.schemas.report import UploadResponse
 from backend.services.document_service import document_service
@@ -27,6 +29,7 @@ storage = FileStorageService()
 async def upload_report(
     file: UploadFile = File(...),
 ) -> UploadResponse:
+    """Validate and store an uploaded medical report."""
 
     if not file.filename:
         raise HTTPException(
@@ -34,7 +37,8 @@ async def upload_report(
             detail="Filename is required.",
         )
 
-    content = await file.read()
+    # Read at most one byte beyond the limit to detect oversized uploads.
+    content = await file.read(MAX_UPLOAD_SIZE + 1)
 
     try:
         extension = storage.validate_file(
