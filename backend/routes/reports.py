@@ -46,22 +46,34 @@ async def upload_report(
             file_size=len(content),
         )
 
+        
         stored_path = storage.save_file(
             content=content,
             extension=extension,
         )
 
-        document_id = str(uuid4())
+        try:
+            document_id = str(uuid4())
 
-        document = DocumentRecord(
-            document_id=document_id,
-            original_filename=file.filename,
-            file_type=extension.lstrip("."),
-            size_bytes=len(content),
-            storage_path=stored_path,
-        )
+            document = DocumentRecord(
+                document_id=document_id,
+                original_filename=file.filename,
+                file_type=extension.lstrip("."),
+                size_bytes=len(content),
+                storage_path=stored_path,
+            )
 
-        document_service.register(document)
+            document_service.register(document)
+
+        except Exception:
+            # Remove the saved file if document registration fails.
+            try:
+                stored_path.unlink(missing_ok=True)
+            except OSError:
+                # Preserve the original registration error.
+                pass
+            raise
+
 
     except ValueError as exc:
         raise HTTPException(
