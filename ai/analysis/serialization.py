@@ -16,10 +16,4 @@ def analysis_to_dict(
 ) -> dict[str, Any]:
     """Convert a report analysis into JSON-compatible data."""
 
-    data = asdict(analysis)
-
-    data["summary"]["normal_results"] = (
-        analysis.summary.normal_results
-    )
-
-    return data
+    return asdict(analysis)
