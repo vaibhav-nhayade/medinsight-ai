@@ -203,3 +203,55 @@ def test_analysis_endpoint_returns_500_for_unexpected_error(
     stored_document = document_service.get("analysis-error")
 
     assert stored_document.status == "failed"
+
+
+
+def test_upload_removes_saved_file_if_registration_fails(
+    isolated_database,
+    tmp_path,
+    monkeypatch,
+):
+    import pytest
+    from fastapi.testclient import TestClient
+
+    from backend.main import app
+    from backend.routes import reports
+
+    saved_path = tmp_path / "stored.pdf"
+
+    def fake_save_file(content, extension):
+        saved_path.write_bytes(content)
+        return saved_path
+
+    def fail_registration(document):
+        raise RuntimeError("Database registration failed.")
+
+    monkeypatch.setattr(
+        reports.storage,
+        "save_file",
+        fake_save_file,
+    )
+    monkeypatch.setattr(
+        reports.document_service,
+        "register",
+        fail_registration,
+    )
+
+    test_client = TestClient(
+        app,
+        raise_server_exceptions=False,
+    )
+
+    response = test_client.post(
+        "/api/v1/reports/upload",
+        files={
+            "file": (
+                "report.pdf",
+                b"%PDF-1.4 test report",
+                "application/pdf",
+            )
+        },
+    )
+
+    assert response.status_code == 500
+    assert not saved_path.exists()
