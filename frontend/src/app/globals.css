@@ -1,0 +1,86 @@
+@import "tailwindcss";
+
+/* ------------------------------------------------------------------
+   Design tokens
+   Midnight navy for strong text and selected states, muted medical
+   blue for primary actions, warm neutral canvas, and semantic colors
+   reserved for meaning (success, caution, danger).
+   ------------------------------------------------------------------ */
+@theme {
+  --color-ink-950: #071425;
+  --color-ink-900: #0e2238;
+  --color-ink-700: #33465c;
+  --color-ink-500: #5a6b7f;
+  --color-ink-400: #7d8ca0;
+
+  --color-canvas: #f5f6f2;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f8f9f6;
+  --color-line: #e3e7ec;
+  --color-line-strong: #cbd3dd;
+
+  --color-brand-50: #eef4fb;
+  --color-brand-100: #dbe7f6;
+  --color-brand-600: #2b64a8;
+  --color-brand-700: #224f88;
+
+  --color-success-50: #e8f5f1;
+  --color-success-700: #0d6b60;
+  --color-caution-50: #fdf4e4;
+  --color-caution-700: #8f4a08;
+  --color-danger-50: #fcecea;
+  --color-danger-700: #9f2a1f;
+
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  --shadow-card: 0 1px 2px rgb(14 34 56 / 0.04),
+    0 10px 28px -16px rgb(14 34 56 / 0.14);
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    scroll-behavior: smooth;
+    scroll-padding-top: 6rem;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    color: var(--color-ink-900);
+    background: var(--color-canvas);
+    text-rendering: optimizeLegibility;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-brand-600);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+
+  ::selection {
+    background: var(--color-brand-100);
+  }
+}
+
+@layer utilities {
+  .num {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* Respect reduced-motion preferences: keep state changes, drop motion. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

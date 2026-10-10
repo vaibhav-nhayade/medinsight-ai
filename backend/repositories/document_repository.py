@@ -1,4 +1,4 @@
-"""
+﻿"""
 Persistent document repository backed by SQLite.
 """
 
