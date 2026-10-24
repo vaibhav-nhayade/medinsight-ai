@@ -6,7 +6,7 @@ MedInsight AI is an AI-powered system designed to help people understand complex
 
 The platform aims to extract medical parameters, identify values outside the reference ranges provided in reports, explain medical terminology in simple language, analyze relationships between results, compare historical reports, and help users prepare meaningful questions for healthcare professionals.
 
-## ⚠️ Medical Safety Disclaimer
+## Medical Safety Disclaimer
 
 MedInsight AI is an informational and educational system. It is **not a medical diagnostic system** and does not replace a qualified healthcare professional.
 
