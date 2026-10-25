@@ -1,6 +1,6 @@
 # MedInsight AI
 
-> AI-powered medical report understanding and health insight platform.
+> AI-powered medical report understanding and health insight platform
 
 MedInsight AI is an AI-powered system designed to help people understand complex medical reports by converting unstructured medical documents into clear, structured, and understandable information.
 
